@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+  The default suite: everything except the known contract gaps.
+
+  `preserve-order="true"` and no `parallel` attribute are load-bearing, not
+  boilerplate. api.realworld.show keeps ONE global session — registering a user
+  replaces the current identity for every caller — so two tests running at once
+  authenticate as each other. Verified: register A, register B, then GET /user
+  with A's token returns B. See docs/contract-findings.md, finding #1.
+
+  Run the excluded group deliberately with:
+    mvn test -Dgroups=contract-gaps
+-->
+<suite name="RealWorld API — TestNG + java.net.http" verbose="1" preserve-order="true">
+
+  <test name="Contract suite">
+    <groups>
+      <run>
+        <include name="smoke"/>
+        <include name="contract"/>
+        <!--
+          Excluded on purpose. These tests are correct and they fail: they assert
+          the published contract against a deployment that does not honour it.
+          Keeping them out of the default run means a red build is a genuine
+          regression rather than a permanent block of known defects.
+        -->
+        <exclude name="contract-gaps"/>
+        <!--
+          Impossible on the shared sandbox: needs two identities alive at the
+          same time. Enable against a self-hosted backend.
+        -->
+        <exclude name="multi-user"/>
+      </run>
+    </groups>
+
+    <classes>
+      <class name="dev.dsbon.realworld.api.tests.AuthenticationTest"/>
+      <class name="dev.dsbon.realworld.api.tests.ArticlesTest"/>
+      <class name="dev.dsbon.realworld.api.tests.CommentsAndTagsTest"/>
+      <class name="dev.dsbon.realworld.api.tests.ContractGapsTest"/>
+    </classes>
+  </test>
+</suite>
