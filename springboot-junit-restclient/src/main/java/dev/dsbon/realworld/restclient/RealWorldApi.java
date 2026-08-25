@@ -1,6 +1,5 @@
 package dev.dsbon.realworld.restclient;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.dsbon.realworld.restclient.model.Dtos.LoginRequest;
 import dev.dsbon.realworld.restclient.model.Dtos.NewArticleRequest;
 import dev.dsbon.realworld.restclient.model.Dtos.NewCommentRequest;
@@ -15,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriBuilder;
+// tools.jackson, not com.fasterxml.jackson: Spring Boot 4 ships Jackson 3, which
+// relocated core and databind. Annotations kept their old package — see ApiResponse.
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * A typed facade over the RealWorld API, built on Spring's {@link RestClient}.
