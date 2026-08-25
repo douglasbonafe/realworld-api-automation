@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------------------
+# Target under test
+# ---------------------------------------------------------------------------
+# Override without touching this file:
+#
+#   mvn test -Drealworld.base-url=http://localhost:8000/api
+#   REALWORLD_BASEURL=http://localhost:8000/api mvn test
+#
+# Note the /api suffix. The published OpenAPI document declares
+# servers[0].url as https://api.realworld.show/api AND prefixes every path with
+# /api, which would produce /api/api/tags. The live service answers on
+# /api/tags — the document is wrong. See docs/contract-findings.md, finding #8.
+realworld:
+  base-url: ${realworld.base.url:https://api.realworld.show/api}
+  # Print the full request and response, but ONLY for a test that fails.
+  # A green run stays silent; a red one arrives with everything you need.
+  log-on-failure: true
+
+spring:
+  main:
+    web-application-type: none
+    # Quoted deliberately: YAML 1.1 parses a bare `off` as the boolean false,
+    # which does not bind to Spring's Banner.Mode enum.
+    banner-mode: "off"
+
+logging:
+  level:
+    root: WARN

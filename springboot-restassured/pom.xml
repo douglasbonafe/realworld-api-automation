@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>dev.dsbon.realworld</groupId>
+    <artifactId>realworld-api-automation</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <artifactId>springboot-restassured</artifactId>
+  <name>RealWorld API — Spring Boot + REST Assured</name>
+  <description>
+    The purpose-built API testing DSL: given/when/then, Groovy-style JSON path
+    assertions, reusable request and response specifications, and JSON Schema
+    validation of the response body.
+  </description>
+
+  <properties>
+    <!-- Cleared on the command line to run the excluded groups. -->
+    <test.excluded.groups>contract-gaps,multi-user</test.excluded.groups>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <version>${rest-assured.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!--
+      The capability neither other module has: assert a response against a JSON
+      Schema in one line, instead of writing an assertion per field.
+
+      It is backed by com.github.java-json-tools, which implements JSON Schema
+      draft-04 — so the schemas in src/test/resources/schemas use draft-04
+      syntax, not draft-07 or 2020-12. Worth knowing before you copy a schema in
+      from elsewhere and wonder why `const` is ignored.
+    -->
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>json-schema-validator</artifactId>
+      <version>${rest-assured.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!--
+      Spring Boot earns its place here through configuration and context
+      management, not through HTTP: REST Assured brings its own client. The
+      context supplies typed, environment-aware configuration and one place to
+      build the shared specifications.
+    -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <realworld.base.url>${realworld.base.url}</realworld.base.url>
+          </systemPropertyVariables>
+          <!--
+            Run the excluded groups deliberately with:
+              mvn test -Dtest.excluded.groups= -Dgroups=contract-gaps
+          -->
+          <excludedGroups>${test.excluded.groups}</excludedGroups>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

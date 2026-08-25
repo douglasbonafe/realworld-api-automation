@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "RealWorld error response",
+  "description": "One shape for every error this API returns, at 401, 404 and 422 alike: an `errors` object whose every value is a non-empty array of message strings. A client that renders field-level validation depends on this, so it is worth asserting as a contract rather than per test.",
+  "type": "object",
+  "required": ["errors"],
+  "properties": {
+    "errors": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

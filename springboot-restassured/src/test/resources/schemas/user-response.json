@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "RealWorld user response",
+  "description": "Returned by POST /users, POST /users/login, GET /user and PUT /user. Draft-04 on purpose: REST Assured's validator is backed by com.github.java-json-tools, which implements draft-04.",
+  "type": "object",
+  "required": ["user"],
+  "properties": {
+    "user": {
+      "type": "object",
+      "required": ["email", "token", "username", "bio", "image"],
+      "properties": {
+        "email": { "type": "string", "minLength": 1 },
+        "token": { "type": "string", "minLength": 1 },
+        "username": { "type": "string", "minLength": 1 },
+        "bio": { "type": ["string", "null"] },
+        "image": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

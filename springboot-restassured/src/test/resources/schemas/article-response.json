@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "RealWorld single-article response",
+  "description": "Returned by POST /articles, GET /articles/{slug}, PUT /articles/{slug} and the favourite endpoints.",
+  "type": "object",
+  "required": ["article"],
+  "properties": {
+    "article": {
+      "type": "object",
+      "required": [
+        "slug",
+        "title",
+        "description",
+        "tagList",
+        "createdAt",
+        "updatedAt",
+        "favorited",
+        "favoritesCount",
+        "author"
+      ],
+      "properties": {
+        "slug": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": ["string", "null"] },
+        "body": { "type": ["string", "null"] },
+        "tagList": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "favorited": { "type": "boolean" },
+        "favoritesCount": { "type": "integer", "minimum": 0 },
+        "author": { "$ref": "#/definitions/profile" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "definitions": {
+    "profile": {
+      "type": "object",
+      "required": ["username", "following"],
+      "properties": {
+        "username": { "type": "string", "minLength": 1 },
+        "bio": { "type": ["string", "null"] },
+        "image": { "type": ["string", "null"] },
+        "following": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

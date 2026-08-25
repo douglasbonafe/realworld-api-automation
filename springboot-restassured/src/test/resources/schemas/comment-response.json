@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "RealWorld single-comment response",
+  "description": "Note `id` is an integer. Several RealWorld implementations return a string here, so the type is pinned deliberately — verified against the live service.",
+  "type": "object",
+  "required": ["comment"],
+  "properties": {
+    "comment": {
+      "type": "object",
+      "required": ["id", "createdAt", "updatedAt", "body", "author"],
+      "properties": {
+        "id": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "body": { "type": "string", "minLength": 1 },
+        "author": {
+          "type": "object",
+          "required": ["username", "following"],
+          "properties": {
+            "username": { "type": "string", "minLength": 1 },
+            "bio": { "type": ["string", "null"] },
+            "image": { "type": ["string", "null"] },
+            "following": { "type": "boolean" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
