@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>dev.dsbon.realworld</groupId>
+    <artifactId>realworld-api-automation</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <artifactId>springboot-junit-restclient</artifactId>
+  <name>RealWorld API — Spring Boot + JUnit + RestClient</name>
+  <description>
+    The client is a real Spring bean, configured through @ConfigurationProperties
+    and injected into JUnit 5 tests by the Spring TestContext framework.
+  </description>
+
+  <properties>
+    <!-- Cleared on the command line to run the excluded groups. -->
+    <test.excluded.groups>contract-gaps,multi-user</test.excluded.groups>
+  </properties>
+
+  <dependencies>
+    <!--
+      `web`, not `webflux`. RestClient (Spring Framework 6.1+) is the synchronous
+      successor to RestTemplate: same blocking semantics, WebClient's fluent API.
+      For a test suite, blocking is the right model — a test that has to compose
+      reactive streams to assert a status code is a test nobody maintains.
+
+      No server starts: the tests use @SpringBootTest with the default NONE web
+      environment, so this brings in the HTTP *client* and Jackson, not Tomcat.
+    -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <realworld.base.url>${realworld.base.url}</realworld.base.url>
+          </systemPropertyVariables>
+          <!--
+            Contract-gap tests are excluded by default: they are correct, and
+            they fail, because the deployment does not honour its own contract.
+            Keeping them out of the default run means a red build is a genuine
+            regression rather than a permanent block of known defects.
+
+            Run them deliberately by clearing the exclusion:
+              mvn test -Dtest.excluded.groups= -Dgroups=contract-gaps
+          -->
+          <excludedGroups>${test.excluded.groups}</excludedGroups>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

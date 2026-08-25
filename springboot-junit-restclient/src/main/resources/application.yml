@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------------------
+# Target under test
+# ---------------------------------------------------------------------------
+# Override without touching this file, in the usual Spring precedence order:
+#
+#   mvn test -Drealworld.base-url=http://localhost:8000/api
+#   REALWORLD_BASEURL=http://localhost:8000/api mvn test
+#   @TestPropertySource(properties = "realworld.base-url=...")   # per test class
+#
+# Note the /api suffix. The published OpenAPI document declares
+# servers[0].url as https://api.realworld.show/api AND prefixes every path with
+# /api, which would produce /api/api/tags. The live service answers on
+# /api/tags — the document is wrong. See docs/contract-findings.md, finding #8.
+realworld:
+  base-url: ${realworld.base.url:https://api.realworld.show/api}
+  connect-timeout: 10s
+  read-timeout: 30s
+
+spring:
+  main:
+    # Nothing is served: @SpringBootTest runs with webEnvironment = NONE and the
+    # context exists only to hold the client bean and its configuration.
+    web-application-type: none
+    # Quoted deliberately: YAML 1.1 parses a bare `off` as the boolean false,
+    # which does not bind to Spring's Banner.Mode enum.
+    banner-mode: "off"
+
+logging:
+  level:
+    root: WARN
+    dev.dsbon.realworld: INFO
