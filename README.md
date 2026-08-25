@@ -131,12 +131,18 @@ The `contract-gaps` group is the deliberate part. Those tests are not skipped be
 Run them on purpose to see whether upstream has fixed anything:
 
 ```bash
-mvn test -pl testng-java-httpclient -Dgroups=contract-gaps
+# TestNG — a dedicated suite file, NOT -Dgroups (see the warning below)
+mvn test -pl testng-java-httpclient \
+  -Dsurefire.suiteXmlFiles=src/test/resources/testng-contract-gaps.xml -DfailIfNoTests=true
+
+# JUnit modules — clear the exclusion, then include
 mvn test -pl springboot-junit-restclient -Dtest.excluded.groups= -Dgroups=contract-gaps
-mvn test -pl springboot-restassured     -Dtest.excluded.groups= -Dgroups=contract-gaps
+mvn test -pl springboot-restassured      -Dtest.excluded.groups= -Dgroups=contract-gaps
 ```
 
-CI runs this group nightly as a non-blocking job. A green result there is the signal to promote a test out of the excluded group.
+> **`-Dgroups=contract-gaps` alone does not work on the TestNG module, and it fails silently in the worst direction.** Surefire *intersects* its `groups` parameter with the rules already in `testng.xml`, which excludes that group. The intersection is empty, so TestNG runs nothing — and reports `BUILD SUCCESS` with `Tests run: 0`. The first CI run on this repository did exactly that: a green job that checked nothing, reading as "the gaps are closed". Hence the separate suite file, and `failIfNoTests=true` so an empty run can never be green again.
+
+CI runs this group nightly as a non-blocking job. A green result there is the signal to promote a test out of the excluded group — which is only meaningful now that the job can actually go red.
 
 ---
 

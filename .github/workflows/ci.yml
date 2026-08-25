@@ -91,8 +91,18 @@ jobs:
           distribution: temurin
           java-version: "25"
           cache: maven
+      # A dedicated suite file, NOT -Dgroups=contract-gaps.
+      #
+      # Surefire intersects its `groups` parameter with the rules already in
+      # testng.xml, which excludes this group. The intersection is empty, so
+      # TestNG runs nothing and reports BUILD SUCCESS — a green job that checked
+      # zero tests, which reads as "the gaps are closed" when nothing ran.
+      # The first CI run on this repository did exactly that.
+      #
+      # failIfNoTests makes that failure mode impossible to repeat.
       - name: Run the excluded group
         run: |
           mvn -B -pl testng-java-httpclient -am test \
-            -Dgroups=contract-gaps \
+            -Dsurefire.suiteXmlFiles=src/test/resources/testng-contract-gaps.xml \
+            -DfailIfNoTests=true \
             -Drealworld.base.url=$REALWORLD_BASE_URL

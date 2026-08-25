@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+  The known-contract-gaps suite. Expected to FAIL: these tests assert the
+  behaviour the OpenAPI document promises, against a deployment that does not
+  implement it. See docs/contract-findings.md.
+
+  Run it deliberately:
+    mvn test -Dsurefire.suiteXmlFiles=src/test/resources/testng-contract-gaps.xml
+
+  ---------------------------------------------------------------------------
+  WHY THIS FILE EXISTS AT ALL — a real bug caught by the first CI run
+  ---------------------------------------------------------------------------
+  The obvious way to run the excluded group is `mvn test -Dgroups=contract-gaps`.
+  It does not work, and it fails silently in the worst possible direction:
+
+  Surefire's `groups` parameter is INTERSECTED with the group rules already in
+  testng.xml, which excludes `contract-gaps`. The intersection is empty, so
+  TestNG runs nothing — and reports BUILD SUCCESS.
+
+      [INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0
+      [INFO] BUILD SUCCESS
+
+  A green job that executed zero tests is worse than a red one: it reads as
+  "the gaps are closed" when nothing was checked. Hence a separate suite file
+  that includes the group instead of trying to un-exclude it, plus
+  `failIfNoTests` in the workflow so an empty run can never be green again.
+
+  `multi-user` stays excluded even here: those scenarios need two identities
+  alive at once, which the sandbox's single global session makes impossible.
+  Include them only when pointing at a self-hosted backend.
+-->
+<suite name="RealWorld API — known contract gaps" verbose="1" preserve-order="true">
+
+  <test name="Contract gaps">
+    <groups>
+      <run>
+        <include name="contract-gaps"/>
+        <exclude name="multi-user"/>
+      </run>
+    </groups>
+
+    <classes>
+      <class name="dev.dsbon.realworld.api.tests.ContractGapsTest"/>
+    </classes>
+  </test>
+</suite>
